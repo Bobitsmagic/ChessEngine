@@ -74,7 +74,11 @@ namespace ChessEngine
 			if (_val) val |= (ulong)1 << (_x + (_y << 3));
 			else val &= ~((ulong)1 << (_x + (_y << 3)));
 		}
-
+		public void Set(Position _p, bool _val)
+		{
+			if (_val) val |= (ulong)1 << (_p.X + (_p.Y << 3));
+			else val &= ~((ulong)1 << (_p.X + (_p.Y << 3)));
+		}
 		//public Functions
 		public BitBoard Offset(int _x, int _y)
 		{
@@ -91,20 +95,36 @@ namespace ChessEngine
 		{
 			return (Value & ((ulong)1 << (_x + (_y << 3)))) != 0;
 		}
-
+		public bool Get(Position _p)
+		{
+			return (Value & ((ulong)1 << (_p.X + (_p.Y << 3)))) != 0;
+		}
 		//operator
 		public static BitBoard operator &(BitBoard a, BitBoard b)
 		{
 			return new BitBoard(a.Value & b.Value);
 		}
+		public static BitBoard operator &(BitBoard a, ulong b)
+		{
+			return new BitBoard(a.Value & b);
+		}
 		public static BitBoard operator |(BitBoard a, BitBoard b)
 		{
 			return new BitBoard(a.Value | b.Value);
+		}
+		public static BitBoard operator |(BitBoard a, ulong b)
+		{
+			return new BitBoard(a.Value | b);
 		}
 		public static BitBoard operator ^(BitBoard a, BitBoard b)
 		{
 			return new BitBoard(a.Value ^ b.Value);
 		}
+		public static BitBoard operator ^(BitBoard a, ulong b)
+		{
+			return new BitBoard(a.Value ^ b);
+		}
+
 		public static BitBoard operator ~(BitBoard a)
 		{
 			return new BitBoard(~a.Value);

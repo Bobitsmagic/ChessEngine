@@ -7,11 +7,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace ChessEngine
 {
 	public partial class Form1 : Form
 	{
+		//Const
+		const int pawn = 0;
+		const int knight = 1;
+		const int bishop = 2;
+		const int rook = 3;
+		const int queen = 4;
+		const int king = 5;
+
+		//Image Data
+		Image[] wPieces;
+		Image[] bPieces;
+		State s = new State();
+
+		//constructor
 		public Form1()
 		{
 			InitializeComponent();
@@ -19,21 +34,50 @@ namespace ChessEngine
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
-			BitBoard bb = new BitBoard(new byte[8]
-			{
-				255,
-				129,
-				129,
-				129,
-				129,
-				129,
-				129,
-				255
-			});
+			wPieces = new Image[6];
+			bPieces = new Image[6];
 
-			Console.WriteLine(bb);
-			bb.Move(1, -2);
-			Console.WriteLine(bb);
+			wPieces[pawn] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Pawn_White.png");
+			bPieces[pawn] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Pawn_Black.png");
+
+			wPieces[rook] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Rock_White.png");
+			bPieces[rook] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Rock_Black.png");
+
+			wPieces[knight] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Knight_White.png");
+			bPieces[knight] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Knight_Black.png");
+
+			wPieces[bishop] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Bishop_White.png");
+			bPieces[bishop] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Bishop_Black.png");
+
+			wPieces[queen] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Queen_White.png");
+			bPieces[queen] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\Queen_Black.png");
+
+			wPieces[king] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\King_White.png");
+			bPieces[king] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\King_Black.png");
+		}
+
+		private void Form1_Paint(object sender, PaintEventArgs e)
+		{
+			int squareSize = 80;
+
+			byte[,] field = s.GetField();
+			for (int x = 0; x < 8; x++)
+			{
+				for (int y = 0; y < 8; y++)
+				{
+					if ((field[x, y] & 16) == 0)
+					{
+						e.Graphics.DrawImage(GetImage((State.Category)(field[x, y] & (1 | 2 | 4)), (field[x, y] & 8) == 0),
+							x * squareSize, (7 - y) * squareSize, squareSize, squareSize);
+					}
+
+				}
+			}
+		}
+		private Image GetImage(State.Category _cat, bool _color)
+		{
+			if (_color) return wPieces[(int)_cat];
+			else return bPieces[(int)_cat];
 		}
 	}
 }
