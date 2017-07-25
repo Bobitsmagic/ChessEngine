@@ -17,6 +17,7 @@ namespace ChessEngine
 				buffer = (buffer & 0x3333333333333333) + ((buffer >> 2) & 0x3333333333333333);
 				return (int)((((buffer + (buffer >> 4)) & 0xF0F0F0F0F0F0F0F) * 0x101010101010101) >> 56);
 			} }
+		public bool Empty { get { return val == 0; } }
 
 		//const
 		private static ulong[] Column = new ulong[8]
@@ -51,6 +52,10 @@ namespace ChessEngine
 				if(_bitArray[i])	val |= (ulong)1 << i;
 			}
 		}
+		public BitBoard(Position _pos)
+		{
+			val = (ulong)1 << _pos.Index;
+		}
 
 		//public voids
 		public void Move(int _x, int _y)
@@ -79,6 +84,7 @@ namespace ChessEngine
 			if (_val) val |= (ulong)1 << (_p.X + (_p.Y << 3));
 			else val &= ~((ulong)1 << (_p.X + (_p.Y << 3)));
 		}
+
 		//public Functions
 		public BitBoard Offset(int _x, int _y)
 		{
@@ -99,6 +105,7 @@ namespace ChessEngine
 		{
 			return (Value & ((ulong)1 << (_p.X + (_p.Y << 3)))) != 0;
 		}
+
 		//operator
 		public static BitBoard operator &(BitBoard a, BitBoard b)
 		{

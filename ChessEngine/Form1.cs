@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 namespace ChessEngine
 {
@@ -25,6 +26,7 @@ namespace ChessEngine
 		Image[] wPieces;
 		Image[] bPieces;
 		State s = new State();
+		Random rnd = new Random();
 
 		//constructor
 		public Form1()
@@ -55,20 +57,23 @@ namespace ChessEngine
 			wPieces[king] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\King_White.png");
 			bPieces[king] = Image.FromFile(Directory.GetCurrentDirectory() + "\\Pictures\\King_Black.png");
 		}
-
 		private void Form1_Paint(object sender, PaintEventArgs e)
 		{
-			int squareSize = 80;
+			float sqx = 80;
+			float sqy = 80;
 
 			byte[,] field = s.GetField();
 			for (int x = 0; x < 8; x++)
 			{
 				for (int y = 0; y < 8; y++)
 				{
+					e.Graphics.FillRectangle((x + y) % 2 == 1 ? Brushes.White : Brushes.DarkBlue,
+							x * sqx, (7 - y) * sqy, sqx, sqy);
+
 					if ((field[x, y] & 16) == 0)
 					{
 						e.Graphics.DrawImage(GetImage((State.Category)(field[x, y] & (1 | 2 | 4)), (field[x, y] & 8) == 0),
-							x * squareSize, (7 - y) * squareSize, squareSize, squareSize);
+							x * sqx, (7 - y) * sqy, sqx, sqy);
 					}
 
 				}
@@ -78,6 +83,44 @@ namespace ChessEngine
 		{
 			if (_color) return wPieces[(int)_cat];
 			else return bPieces[(int)_cat];
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			s = new State();
+			for (int i = 0; i < 1000; i++)
+			{
+				s.CalcSoftMoves();
+				s.CheckMoves();
+				s.DoMove(s.SoftMoves[rnd.Next(0, s.SoftMoves.Count)]);
+				Refresh();
+
+				System.Threading.Thread.Sleep(100);
+			}
+			MessageBox.Show("Done");
+
+			//while (true)
+			//{
+			//	s.CalcSoftMoves();
+			//	s.CheckMoves();
+			//	for (int i = 0; i < s.SoftMoves.Count; i++)
+			//	{
+			//		Console.WriteLine(i.ToString() + "\t" + s.SoftMoves[i]);
+			//	}
+
+			//	string str = Console.ReadLine();
+			//	int index = 0;
+			//	if (int.TryParse(str, out index))
+			//	{
+			//		s.DoMove(s.SoftMoves[index]);
+			//	}
+			//	else
+			//	{
+			//		s.DoMove(new Move(str, s));
+			//	}
+
+			//	Refresh();
+			//}
 		}
 	}
 }

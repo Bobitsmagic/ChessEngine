@@ -12,40 +12,72 @@ namespace ChessEngine
 		public Position End { get { return end; } }
 		public bool Kill { get { return kill; } }
 		public State.Category Category { get { return (State.Category)category; } }
-		public bool Player { get { return player; } }
+		public State.Category  FinalCategory { get { return (State.Category)finalCategory; } }
+		public bool IsCastle { get { return Category == State.Category.King && Math.Abs(Start.X - End.X) == 2; } }
 
 		private Position start;
 		private Position end;
 		private bool kill;
 		private bool check;
-		private bool player;
+		byte finalCategory;
 
 		byte category;
 
-		public Move(State.Category _cat, Position _startPos, Position _endPos, bool _kill)
+		public Move(State.Category _cat, Position _startPos, Position _endPos, bool _kill, State.Category _final = State.Category.Empty)
 		{
 			start = _startPos;
 			end = _endPos;
 			kill = _kill;
 			check = false;
 			category = (byte)_cat;
+			finalCategory = (byte)_final;
 		}
-		public static List<Move> GetMoves(State.Category _cat, int dx, int dy, ulong _endPos, bool _kill)
+		public Move(string _string, State _state)
+		{
+			char split = _string.Contains("x") ? 'x' : '-';
+			_string.Replace(" ","");
+			kill = split == 'x';
+			string[] s = _string.Split(split);
+
+			start = new Position(s[0]);
+			end = new Position(s[1]);
+
+			category = (byte)_state.GetCategory(start.X, start.Y);
+		}
+		public static List<Move> GetMoves(State.Category _cat, int dx, int dy, BitBoard _endPos, bool _kill)
 		{
 
-			List<Position> buffer = GetPos(_endPos);
+			List<Position> buffer = GetPos(_endPos.Value);
 			List<Move> ret = new List<Move>(buffer.Count);
 
 			for (int i = 0; i < buffer.Count; i++)
 			{
-				ret.Add(new Move(_cat, buffer[i].Offset(-dx, -dy), buffer[i], _kill));
+				if(_cat == State.Category.Pawn && buffer[i].Y % 7 == 0)
+				{
+					ret.Add(new Move(_cat, buffer[i].Offset(-dx, -dy), buffer[i], _kill, State.Category.Knight));
+					ret.Add(new Move(_cat, buffer[i].Offset(-dx, -dy), buffer[i], _kill, State.Category.Bishop));
+					ret.Add(new Move(_cat, buffer[i].Offset(-dx, -dy), buffer[i], _kill, State.Category.Rook));
+					ret.Add(new Move(_cat, buffer[i].Offset(-dx, -dy), buffer[i], _kill, State.Category.Queen));
+				}
+				else
+				{
+					ret.Add(new Move(_cat, buffer[i].Offset(-dx, -dy), buffer[i], _kill));
+				}
 			}
-
 			return ret;
 		}
 		public override string ToString()
 		{
-			return ((State.Category)category).ToString() + " " + start.ToString() + (kill ? "x" : "-") + end.ToString();
+			if (IsCastle)
+			{
+				return end.X == 2 ? "O-O-O" : "O-O";
+			}
+			else
+			{
+				return ((State.Category)category).ToString() + " " + start.ToString() + (kill ? "x" : "-") + end.ToString() +
+					(finalCategory == (byte)State.Category.Empty ? "" : " ->" + ((State.Category)finalCategory).ToString());
+			}
+
 		}
 
 		public static List<Position> GetPos(ulong _val)
@@ -75,6 +107,25 @@ namespace ChessEngine
 		public Position(byte _val)
 		{
 			position = _val;
+		}
+		public Position(string _s)
+		{
+			int x = 0, y = 0;
+			switch (_s[0])
+			{
+				case 'a': x = 0; break;
+				case 'b': x = 1; break;
+				case 'c': x = 2; break;
+				case 'd': x = 3; break;
+
+				case 'e': x = 4; break;
+				case 'f': x = 5; break;
+				case 'g': x = 6; break;
+				case 'h': x = 7; break;
+			}
+			y = int.Parse(_s[1].ToString()) - 1;
+
+			position = (byte)(x | (y << 3));
 		}
 
 		public void Move(int _dx, int _dy)
