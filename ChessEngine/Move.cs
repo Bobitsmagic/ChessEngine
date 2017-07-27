@@ -8,6 +8,7 @@ namespace ChessEngine
 {
 	class Move
 	{
+		//gets
 		public Position Start { get { return start; } }
 		public Position End { get { return end; } }
 		public bool Kill { get { return kill; } }
@@ -15,6 +16,7 @@ namespace ChessEngine
 		public State.Category  FinalCategory { get { return (State.Category)finalCategory; } }
 		public bool IsCastle { get { return Category == State.Category.King && Math.Abs(Start.X - End.X) == 2; } }
 
+		//privat data
 		private Position start;
 		private Position end;
 		private bool kill;
@@ -22,7 +24,7 @@ namespace ChessEngine
 		byte finalCategory;
 
 		byte category;
-
+		//constructor
 		public Move(State.Category _cat, Position _startPos, Position _endPos, bool _kill, State.Category _final = State.Category.Empty)
 		{
 			start = _startPos;
@@ -44,6 +46,8 @@ namespace ChessEngine
 
 			category = (byte)_state.GetCategory(start.X, start.Y);
 		}
+
+		//voids
 		public static List<Move> GetMoves(State.Category _cat, int dx, int dy, BitBoard _endPos, bool _kill)
 		{
 
@@ -66,6 +70,19 @@ namespace ChessEngine
 			}
 			return ret;
 		}
+		public static List<Position> GetPos(ulong _val)
+		{
+			List<Position> ret = new List<Position>();
+
+			for (int i = 0; i < 64; i++)
+			{
+				if (((_val >> i) & 1) > 0) ret.Add(new Position((byte)i));
+			}
+
+			return ret;
+		}
+
+		//override
 		public override string ToString()
 		{
 			if (IsCastle)
@@ -78,18 +95,6 @@ namespace ChessEngine
 					(finalCategory == (byte)State.Category.Empty ? "" : " ->" + ((State.Category)finalCategory).ToString());
 			}
 
-		}
-
-		public static List<Position> GetPos(ulong _val)
-		{
-			List<Position> ret = new List<Position>();
-
-			for (int i = 0; i < 64; i++)
-			{
-				if (((_val >> i) & 1) > 0) ret.Add(new Position((byte)i));
-			}
-
-			return ret;
 		}
 	}
 

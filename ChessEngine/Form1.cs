@@ -27,7 +27,7 @@ namespace ChessEngine
 		Image[] bPieces;
 		State s = new State();
 		Random rnd = new Random();
-
+		Tree tree = new Tree();
 		//constructor
 		public Form1()
 		{
@@ -87,17 +87,25 @@ namespace ChessEngine
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			s = new State();
-			for (int i = 0; i < 1000; i++)
-			{
-				s.CalcSoftMoves();
-				s.CheckMoves();
-				s.DoMove(s.SoftMoves[rnd.Next(0, s.SoftMoves.Count)]);
-				Refresh();
+			//s = new State();
+			//for (int i = 0; i < 200; i++)
+			//{
+			//	s.CalcSoftMoves();
+			//	s.CheckMoves();
+			//	Console.WriteLine(s.GetResult());
+			//	s.DoMove(s.SoftMoves[rnd.Next(0, s.SoftMoves.Count)]);
+			//	Refresh();
 
-				System.Threading.Thread.Sleep(100);
+			//	System.Threading.Thread.Sleep(0);
+			//}
+
+			for(int i = 0; i < 30; i++)
+			{
+				s.DoMove(tree.GetBestMove());
+				Refresh();
+				tree.DoMove(s.LastMove);
 			}
-			MessageBox.Show("Done");
+
 
 			//while (true)
 			//{

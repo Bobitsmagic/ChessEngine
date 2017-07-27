@@ -13,6 +13,10 @@ namespace ChessEngine
 		{
 			Pawn, Knight, Bishop, Rook, Queen, King, Empty
 		}
+		public enum Result
+		{
+			Normal, Check, Checkmate, Stalemate
+		}
 
 		//Gets
 		public Move LastMove { get { return lastMove; } }
@@ -280,24 +284,7 @@ namespace ChessEngine
 
 			CalcSoftMoves();
 		}
-		public List<State> CheckMoves()
-		{
-			List<State> ret = new List<State>(softMoves.Count);
-
-			for(int i = softMoves.Count - 1; i >= 0; i--)
-			{
-				ret.Add(new State(this, softMoves[i]));
-				
-				if (ret.Last().OpponentIsInCheck())
-				{
-					ret.RemoveAt(ret.Count -1);
-					softMoves.RemoveAt(i);
-				}
-			}
-			movesProved = true;
-			ret.Reverse();
-			return ret;
-		}
+	
 
 		//public functions
 		public string GetAllBitboards()
@@ -379,6 +366,68 @@ namespace ChessEngine
 				}
 			}
 			return false;
+		}
+		public Result GetResult()
+		{
+			
+			if (softMoves.Count == 0)
+			{
+				player = !player;
+				CalcSoftMoves();
+				player = !player;
+				for(int i = 0; i < softMoves.Count; i++)
+				{
+					if (softMoves[i].End == (player ? BlackKingPos : WhiteKingPos)) return Result.Checkmate;
+				}
+				return Result.Stalemate;
+			}
+			else
+			{
+				List<Move> buffer = new List<Move>(softMoves);
+				player = !player;
+				CalcSoftMoves();
+				player = !player;
+				for (int i = 0; i < softMoves.Count; i++)
+				{
+					if (softMoves[i].End == (player ? BlackKingPos : WhiteKingPos))
+					{
+						softMoves = new List<Move>(buffer);
+						return Result.Check;
+					}
+
+						
+				}
+				softMoves = new List<Move>(buffer);
+				return Result.Normal;
+			}
+		}
+		public float Evaluate()
+		{
+			float ret =
+				9 * ((queen & white).BitCount - (queen & black).BitCount) +
+				5 * ((rook & white).BitCount - (rook & black).BitCount) +
+				3 * (((bishop | knight) & white).BitCount - ((bishop | knight) & black).BitCount) +
+				1 * ((pawn & white).BitCount - (pawn & black).BitCount);
+
+			return ret;
+		}
+		public List<State> CheckMoves()
+		{
+			List<State> ret = new List<State>(softMoves.Count);
+
+			for (int i = softMoves.Count - 1; i >= 0; i--)
+			{
+				ret.Add(new State(this, softMoves[i]));
+
+				if (ret.Last().OpponentIsInCheck())
+				{
+					ret.RemoveAt(ret.Count - 1);
+					softMoves.RemoveAt(i);
+				}
+			}
+			movesProved = true;
+			ret.Reverse();
+			return ret;
 		}
 
 		//private voids
