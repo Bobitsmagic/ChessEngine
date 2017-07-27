@@ -62,6 +62,7 @@ namespace ChessEngine
 		//constructor
 		public State()
 		{
+
 			lastMove = new Move(Category.Pawn, new Position(), new Position(), false);
 
 			#region Standart 
@@ -403,13 +404,19 @@ namespace ChessEngine
 		}
 		public float Evaluate()
 		{
-			float ret =
-				9 * ((queen & white).BitCount - (queen & black).BitCount) +
+			float ret = 9 * ((queen & white).BitCount - (queen & black).BitCount) +
 				5 * ((rook & white).BitCount - (rook & black).BitCount) +
 				3 * (((bishop | knight) & white).BitCount - ((bishop | knight) & black).BitCount) +
 				1 * ((pawn & white).BitCount - (pawn & black).BitCount);
 
+			ret += softMoves.Count * 0.1f * (player ? - 1 : 1);
+			player = !player;
+			CalcSoftMoves();
+			ret += softMoves.Count * 0.1f * (player ? -1 : 1);
+			player = !player;
+
 			return ret;
+
 		}
 		public List<State> CheckMoves()
 		{

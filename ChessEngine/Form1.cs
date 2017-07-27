@@ -87,48 +87,12 @@ namespace ChessEngine
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			//s = new State();
-			//for (int i = 0; i < 200; i++)
-			//{
-			//	s.CalcSoftMoves();
-			//	s.CheckMoves();
-			//	Console.WriteLine(s.GetResult());
-			//	s.DoMove(s.SoftMoves[rnd.Next(0, s.SoftMoves.Count)]);
-			//	Refresh();
-
-			//	System.Threading.Thread.Sleep(0);
-			//}
-
-			for(int i = 0; i < 30; i++)
+			for (int i = 0; i < 30; i++)
 			{
 				s.DoMove(tree.GetBestMove());
 				Refresh();
 				tree.DoMove(s.LastMove);
 			}
-
-
-			//while (true)
-			//{
-			//	s.CalcSoftMoves();
-			//	s.CheckMoves();
-			//	for (int i = 0; i < s.SoftMoves.Count; i++)
-			//	{
-			//		Console.WriteLine(i.ToString() + "\t" + s.SoftMoves[i]);
-			//	}
-
-			//	string str = Console.ReadLine();
-			//	int index = 0;
-			//	if (int.TryParse(str, out index))
-			//	{
-			//		s.DoMove(s.SoftMoves[index]);
-			//	}
-			//	else
-			//	{
-			//		s.DoMove(new Move(str, s));
-			//	}
-
-			//	Refresh();
-			//}
 		}
 	}
 }

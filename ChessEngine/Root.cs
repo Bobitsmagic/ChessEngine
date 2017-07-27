@@ -8,7 +8,7 @@ namespace ChessEngine
 {
 	class Root
 	{
-		public const int MaxDepth  = 4;
+		public const int MaxDepth = 3;
 		public Move LastMove { get { return state.LastMove; } }
 
 		private Root[] root;
@@ -40,12 +40,19 @@ namespace ChessEngine
 			}
 			else
 			{
-				float extrema = root[0].Evaluate();
-				for(int i = 1; i < root.Length; i++)
+				float extrema = 0;
+				if (root.Length == 0) { Console.WriteLine("Found Mate in"); }
+				else
 				{
-					if (state.Player) Math.Min(extrema, root[i].Evaluate());
-					else Math.Max(extrema, root[i].Evaluate());
+					extrema = root[0].Evaluate();
+					for (int i = 1; i < root.Length; i++)
+					{
+						if (state.Player) extrema = Math.Min(extrema, root[i].Evaluate());
+						else extrema = Math.Max(extrema, root[i].Evaluate());
+					}
+
 				}
+
 
 				return extrema;
 			}
